@@ -553,7 +553,7 @@ h1, h2, h3, p { margin: 0; }
 
 /* Tablet portrait */
 @media (min-width: 641px) and (max-width: 900px) {
-  .hero__title { font-size: 24vw; }
+  .hero__title { font-size: 28vw; }
   .hero__bottom { grid-template-columns: 1fr auto; align-items: end; }
   .hero__cta { grid-column: 1 / -1; }
   .hero__next { grid-column: 2; grid-row: 1; min-width: 260px; }
