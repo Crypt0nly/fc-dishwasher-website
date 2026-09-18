@@ -22,6 +22,7 @@ uniform float uTime;
 uniform vec2 uMouse;
 uniform float uMouseStrength;
 uniform float uScroll;
+uniform float uOct;
 
 vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}
 vec4 mod289(vec4 x){return x-floor(x*(1.0/289.0))*289.0;}
@@ -73,7 +74,7 @@ float surface(vec2 p){
   float h=0.0;
   h+=0.55*snoise(vec3(q*1.15,t*1.3));
   h+=0.27*snoise(vec3(q*2.4+vec2(1.7,9.2),t*1.7));
-  h+=0.11*snoise(vec3(q*4.9-vec2(3.1,2.4),t*2.2));
+  if(uOct>2.5){h+=0.11*snoise(vec3(q*4.9-vec2(3.1,2.4),t*2.2));}
   float d=length(p-uMouse);
   h+=uMouseStrength*0.2*sin(d*20.0-uTime*4.5)*exp(-d*2.6);
   return h;
@@ -122,7 +123,8 @@ void main(){
     return s;
   }
 
-  let program, uRes, uTime, uMouse, uMouseStrength, uScroll, raf = 0, running = false, visible = true, lost = false;
+  const touch = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+  let program, uRes, uTime, uMouse, uMouseStrength, uScroll, uOct, raf = 0, running = false, visible = true, lost = false;
   const mouse = { x: 0, y: 0, tx: 0, ty: 0, strength: 0 };
   let scrollN = 0;
   const start = performance.now();
@@ -148,6 +150,7 @@ void main(){
     uMouse = gl.getUniformLocation(program, 'uMouse');
     uMouseStrength = gl.getUniformLocation(program, 'uMouseStrength');
     uScroll = gl.getUniformLocation(program, 'uScroll');
+    uOct = gl.getUniformLocation(program, 'uOct');
     resize();
     return true;
   }
@@ -157,8 +160,8 @@ void main(){
     const h = canvas.clientHeight || window.innerHeight;
     /* Render at reduced resolution: the soft upscale suits the liquid look and keeps GPUs cool */
     const small = w < 768;
-    let scale = Math.min(window.devicePixelRatio || 1, 2) * (small ? 0.45 : 0.5);
-    const maxPixels = 1100000;
+    let scale = Math.min(window.devicePixelRatio || 1, 2) * (small ? 0.4 : 0.5);
+    const maxPixels = touch ? 420000 : 1100000;
     if (w * h * scale * scale > maxPixels) scale = Math.sqrt(maxPixels / (w * h));
     canvas.width = Math.max(2, Math.round(w * scale));
     canvas.height = Math.max(2, Math.round(h * scale));
@@ -177,6 +180,7 @@ void main(){
     gl.uniform2f(uMouse, mouse.x, mouse.y);
     gl.uniform1f(uMouseStrength, mouse.strength);
     gl.uniform1f(uScroll, scrollN);
+    gl.uniform1f(uOct, touch ? 2.0 : 3.0);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     raf = requestAnimationFrame(frame);
   }
@@ -200,6 +204,11 @@ void main(){
 
   window.addEventListener('resize', resize, { passive: true });
   window.addEventListener('pointermove', onPointer, { passive: true });
+  if (touch) {
+    const onTouch = (e) => { const t = e.touches && e.touches[0]; if (t) onPointer(t); };
+    window.addEventListener('touchstart', onTouch, { passive: true });
+    window.addEventListener('touchmove', onTouch, { passive: true });
+  }
   window.addEventListener('scroll', () => {
     const vh = window.innerHeight || 1;
     scrollN = Math.min(1.5, Math.max(0, window.scrollY / vh));

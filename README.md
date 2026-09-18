@@ -14,7 +14,7 @@ Statische Website ohne Build-Schritt: HTML, CSS und JavaScript, gehostet über G
 - **Formationsgrafik**, die sich beim Scrollen aufstellt, hell/dunkel-Themenwechsel
 - **Preloader, Custom Cursor, magnetische Buttons, Marquee** mit Scroll-Geschwindigkeit
 - Selbst gehostete Schriften (DSGVO-freundlich), keine Cookies, kein Tracking
-- Responsiv (Mobile: nativer horizontaler Kader-Scroll, Fullscreen-Menü), `prefers-reduced-motion` wird respektiert
+- Mobile-first: eigener Hero-Lockup, Kader als Swipe-Karussell mit Positions-Tabs und Fortschrittsanzeige, Touch-Ripple im Shader, Fullscreen-Menü; `prefers-reduced-motion` wird respektiert
 - Impressum- und Datenschutz-Vorlagen
 
 ## Inhalte pflegen

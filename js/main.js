@@ -57,6 +57,7 @@
       if (!players.length) return;
       const g = document.createElement('div');
       g.className = 'kader__group';
+      g.dataset.label = group.label;
       g.innerHTML = `<span class="kader__group-label mono">${esc(group.label)} <i>·</i> ${players.length}</span>
         <div class="kader__cards">${players.map(cardHTML).join('')}</div>`;
       frag.appendChild(g);
@@ -104,7 +105,8 @@
       setText('#nm-date', valid ? fmtDate(d, true) : 'Termin folgt');
       setText('#nm-venue', nm.venue || '');
       setText('#hero-next-opp', `vs. ${nm.opponent || '—'}`);
-      setText('#hero-next-date', valid ? `${fmtDate(d, true)} · ${nm.competition || ''}`.replace(/ · $/, '') : 'Termin folgt');
+      setText('#hero-next-date', valid ? fmtDate(d, true) : 'Termin folgt');
+      setText('#hero-next-comp', nm.competition || '');
       if (valid) startCountdown(d);
     }
     const list = $('#results');
@@ -185,6 +187,9 @@
   function renderPitch() {
     const svg = $('#pitch');
     if (!svg || !D.squad) return;
+    const compact = window.innerWidth < 640;
+    if (compact) svg.classList.add('pitch--compact');
+    const R = compact ? 34 : 26, numSize = compact ? 30 : 24, numY = compact ? 10 : 8, nameY = compact ? 66 : 52;
     const ns = 'http://www.w3.org/2000/svg';
     const el = (tag, attrs, parent) => {
       const e = document.createElementNS(ns, tag);
@@ -217,15 +222,82 @@
     pitchPlayers = lineup.map((num, i) => {
       const p = byNumber[num] || { number: num, name: '' };
       const pg = el('g', { class: 'pitch__player' + (p.captain ? ' is-captain' : '') });
-      el('circle', { r: 26, cx: 0, cy: 0 }, pg);
-      const t = el('text', { x: 0, y: 8, 'font-size': 24 }, pg); t.textContent = p.number;
-      const n = el('text', { class: 'pitch__name', x: 0, y: 52 }, pg); n.textContent = p.name;
+      el('circle', { r: R, cx: 0, cy: 0 }, pg);
+      const t = el('text', { x: 0, y: numY, 'font-size': numSize }, pg); t.textContent = p.number;
+      const n = el('text', { class: 'pitch__name', x: 0, y: nameY }, pg); n.textContent = p.name;
       const [tx, ty] = spots[i] || [340, 500];
       const sx = 80 + (i / 10) * 520, sy = 1010;
       return { el: pg, sx, sy, tx, ty };
     });
     /* Without GSAP: place players in formation immediately */
     pitchPlayers.forEach((p) => p.el.setAttribute('transform', `translate(${hasST ? p.sx : p.tx} ${hasST ? p.sy : p.ty})`));
+  }
+
+  /* Squad layout: pinned horizontal scroll on desktop, swipe carousel with position tabs on touch layouts */
+  const kaderMQ = window.matchMedia('(max-width: 1023px)');
+  function setupKaderLayout() {
+    const pin = $('#kader-pin'), track = $('#squad-track');
+    const intro = track ? $('.kader__intro', track) : null;
+    if (!pin || !track || !intro) return;
+    let tabs = null, progress = null, bar = null, count = null;
+    const tabButtons = [];
+    const cards = () => $$('.card', track);
+    const gutter = () => parseFloat(getComputedStyle(track).paddingLeft) || 0;
+    const pad2 = (n) => String(n).padStart(2, '0');
+    const update = () => {
+      if (!kaderMQ.matches || !bar) return;
+      const list = cards();
+      if (!list.length) return;
+      const max = Math.max(1, track.scrollWidth - track.clientWidth);
+      bar.style.setProperty('--p', String(Math.max(0.06, Math.min(1, track.scrollLeft / max))));
+      const origin = track.getBoundingClientRect().left + gutter();
+      let idx = 0, best = Infinity;
+      list.forEach((c, i) => { const d = Math.abs(c.getBoundingClientRect().left - origin); if (d < best) { best = d; idx = i; } });
+      count.textContent = `${pad2(idx + 1)} / ${pad2(list.length)}`;
+      const current = list[idx].closest('.kader__group');
+      tabButtons.forEach((t) => t.b.classList.toggle('is-active', t.g === current));
+    };
+    const build = () => {
+      if (tabs) return;
+      tabs = document.createElement('div');
+      tabs.className = 'kader__tabs';
+      tabs.setAttribute('aria-label', 'Positionen');
+      $$('.kader__group', track).forEach((g) => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'kader__tab'; b.textContent = g.dataset.label || '';
+        b.addEventListener('click', () => {
+          const first = $('.card', g);
+          if (!first) return;
+          const left = first.getBoundingClientRect().left - track.getBoundingClientRect().left + track.scrollLeft - gutter();
+          track.scrollTo({ left, behavior: reduced ? 'auto' : 'smooth' });
+        });
+        tabs.appendChild(b);
+        tabButtons.push({ b, g });
+      });
+      progress = document.createElement('div');
+      progress.className = 'kader__progress';
+      progress.innerHTML = '<span class="mono">Wischen</span><div class="kader__progress-bar"><i></i></div><span class="kader__progress-count mono">01 / 00</span>';
+      bar = $('.kader__progress-bar', progress);
+      count = $('.kader__progress-count', progress);
+      let raf = 0;
+      track.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; update(); }); }, { passive: true });
+      window.addEventListener('resize', update, { passive: true });
+    };
+    const apply = () => {
+      if (kaderMQ.matches) {
+        build();
+        pin.insertBefore(intro, track);
+        pin.insertBefore(tabs, track);
+        pin.appendChild(progress);
+        update();
+      } else if (tabs) {
+        track.insertBefore(intro, track.firstChild);
+        tabs.remove();
+        progress.remove();
+      }
+    };
+    if (kaderMQ.addEventListener) kaderMQ.addEventListener('change', apply); else kaderMQ.addListener(apply);
+    apply();
   }
 
   function wrapLines() {
@@ -237,6 +309,7 @@
 
   renderStats();
   renderSquad();
+  setupKaderLayout();
   renderMatches();
   renderPositions();
   renderSocial();
@@ -429,7 +502,7 @@
     tl.from('.preloader__crest', { scale: 0.85, opacity: 0, duration: 1, ease: 'expo.out' }, 0)
       .from('.preloader__label', { y: 10, opacity: 0, duration: 0.8, ease: 'power3.out' }, 0.2)
       .to(state, {
-        v: 100, duration: 1.7, ease: 'power2.inOut',
+        v: 100, duration: fine ? 1.7 : 1.0, ease: 'power2.inOut',
         onUpdate: () => { count.textContent = String(Math.round(state.v)).padStart(2, '0'); bar.style.width = state.v + '%'; }
       }, 0.1)
       .to(['.preloader__inner', '.preloader__count'], { yPercent: -30, opacity: 0, duration: 0.55, ease: 'power3.in', stagger: 0.04 }, '-=0.05')
@@ -464,7 +537,7 @@
 
     /* Generic reveals in batches */
     const revealEls = $$('[data-reveal]');
-    gsap.set(revealEls, { y: 34, opacity: 0 });
+    gsap.set(revealEls, { y: fine ? 34 : 22, opacity: 0 });
     ScrollTrigger.batch(revealEls, {
       start: 'top 90%', once: true,
       onEnter: (batch) => gsap.to(batch, { y: 0, opacity: 1, duration: 1.15, ease: 'expo.out', stagger: 0.09, overwrite: true })

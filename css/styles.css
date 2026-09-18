@@ -49,7 +49,7 @@
 
 /* ---------- Base ---------- */
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; scroll-behavior: auto; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: auto; overflow-x: clip; }
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
@@ -247,6 +247,9 @@ h1, h2, h3, p { margin: 0; }
   transition: border-color 0.4s, background-color 0.4s;
 }
 .hero__next:hover { border-color: rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.07); }
+.hero__next-label { display: inline-flex; align-items: center; gap: 0.45rem; }
+.hero__next-label::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.7); } }
 .hero__next strong { font-family: var(--font-display); font-weight: 800; font-stretch: 75%; font-size: 1.3rem; text-transform: uppercase; line-height: 1.05; }
 .hero__scroll { position: absolute; left: 50%; bottom: 1.4rem; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 0.5rem; color: #7c838d; }
 .hero__scroll i { display: block; width: 1px; height: 46px; background: linear-gradient(var(--accent), transparent); animation: scrollHint 2.2s var(--ease-in-out) infinite; }
@@ -293,6 +296,7 @@ h1, h2, h3, p { margin: 0; }
 }
 .watermark--right { right: auto; left: -0.04em; top: auto; bottom: -0.1em; }
 .section > .container { position: relative; z-index: 1; }
+.verein, .bewerben { overflow: hidden; }
 
 /* ---------- Verein ---------- */
 .statement {
@@ -414,6 +418,7 @@ h1, h2, h3, p { margin: 0; }
 .pitch .pitch__player circle { fill: var(--ink); stroke: var(--bg); stroke-width: 4; transition: fill var(--theme-speed), stroke var(--theme-speed); }
 .pitch .pitch__player.is-captain circle { fill: var(--accent); }
 .pitch .pitch__player text { font-family: var(--font-display); font-weight: 900; font-stretch: 62%; fill: var(--bg); text-anchor: middle; transition: fill var(--theme-speed); }
+.pitch--compact .pitch__player .pitch__name { font-size: 30px; letter-spacing: 2.5px; }
 .pitch .pitch__player .pitch__name { font-family: var(--font-mono); font-weight: 600; font-size: 17px; letter-spacing: 1.5px; text-transform: uppercase; fill: var(--ink); opacity: 0.8; }
 .principles { list-style: none; }
 .principle { display: grid; grid-template-columns: 64px 1fr; gap: 1rem; padding: clamp(1.6rem, 3vw, 2.6rem) 0; border-top: 1px solid var(--line); }
@@ -487,47 +492,159 @@ h1, h2, h3, p { margin: 0; }
 .legal__note { margin-top: 2.5rem; padding: 1.2rem 1.4rem; border: 1px solid var(--accent-soft); background: var(--accent-soft); border-radius: var(--radius-lg); font-size: 0.92rem; }
 .legal__note strong { color: var(--accent); }
 
+/* ---------- Kader carousel controls (built by JS, shown on touch layouts) ---------- */
+.kader__tabs, .kader__progress { display: none; }
+
+/* ---------- Touch feedback ---------- */
+@media (hover: none) {
+  .btn::before { display: none; }
+  .btn:active { transform: scale(0.97); }
+  .card:active { transform: scale(0.98); }
+  .menu__links a:active { color: var(--accent); }
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 1200px) {
   .verein__grid, .spiele__grid, .philosophie__grid { grid-template-columns: 1fr; }
   .pitch-wrap { position: relative; top: auto; }
   .footer__grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* Tablet and phone: the squad becomes a native swipe carousel with position tabs */
 @media (max-width: 1023px) {
+  .kader { padding-block: clamp(4rem, 9vh, 6rem); }
   .kader__pin { height: auto; overflow: visible; display: block; }
-  .kader__track { overflow-x: auto; scroll-snap-type: x proximity; scroll-padding-inline: var(--gutter); padding-block: clamp(4rem, 10vh, 6rem); -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .kader__intro { width: auto; max-width: 640px; margin: 0 0 1.4rem; padding-inline: var(--gutter); }
+  .kader__intro .section__title { margin-bottom: 1.2rem; }
+  .kader__text { margin-bottom: 0; }
+  .kader__hint { display: none; }
+  .kader__tabs { display: flex; gap: 0.45rem; padding-inline: var(--gutter); margin-bottom: 1rem; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .kader__tabs::-webkit-scrollbar { display: none; }
+  .kader__tabs { -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); padding-right: 3rem; }
+  .kader__tab { flex: 0 0 auto; font-family: var(--font-mono); font-size: 0.64rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-2); padding: 0.6rem 0.95rem; border: 1px solid var(--line-strong); border-radius: 999px; background: transparent; transition: color 0.3s, border-color 0.3s, background-color 0.3s; }
+  .kader__tab.is-active { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+  .kader__track { display: flex; align-items: stretch; gap: 0.8rem; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); padding: 0.4rem var(--gutter) 1rem; -webkit-overflow-scrolling: touch; scrollbar-width: none; will-change: auto; transform: none !important; }
   .kader__track::-webkit-scrollbar { display: none; }
-  .kader__intro { scroll-snap-align: start; width: min(560px, 70vw); margin-right: 1.5rem; }
-  .card { scroll-snap-align: center; }
+  .kader__group, .kader__cards { display: contents; }
+  .kader__group-label { display: none; }
+  .card { scroll-snap-align: start; width: min(72vw, 330px); aspect-ratio: auto; min-height: 400px; transform: none; }
   .card__number { display: none; }
+  .card__jersey { margin-top: 1.6rem; }
+  .kader__progress { display: flex; align-items: center; gap: 0.9rem; padding-inline: var(--gutter); margin-top: 0.6rem; }
+  .kader__progress-bar { flex: 1; height: 2px; background: var(--line-strong); position: relative; overflow: hidden; border-radius: 2px; }
+  .kader__progress-bar i { position: absolute; inset: 0; background: var(--accent); transform-origin: left; transform: scaleX(var(--p, 0.08)); transition: transform 0.12s linear; }
+  .kader__progress-count { font-variant-numeric: tabular-nums; color: var(--ink); }
+  .cta__bg { filter: none; opacity: 1; background: radial-gradient(70% 45% at 15% 15%, rgba(47, 216, 238, 0.28), transparent 70%), radial-gradient(60% 40% at 90% 90%, rgba(106, 124, 255, 0.26), transparent 70%), radial-gradient(40% 30% at 60% 45%, rgba(255, 255, 255, 0.06), transparent 70%); }
+  .cta__bg span { display: none; }
 }
+
 @media (max-width: 900px) {
   .nav__links { display: none; }
   .nav__burger { display: block; }
   .btn--discord span { display: none; }
   .btn--discord { padding: 0.62rem 0.8rem; }
   .btn--discord .btn__icon { width: 1.35em; height: 1.35em; }
-  .hero__bottom { grid-template-columns: 1fr; gap: 1.4rem; }
+  .hero__bottom { grid-template-columns: 1fr; gap: 1.3rem; }
   .hero__next { min-width: 0; }
   .hero__scroll { display: none; }
-  .bewerben__grid { grid-template-columns: 1fr; }
   .hero__meta--right { display: none; }
+  .bewerben__grid { grid-template-columns: 1fr; }
 }
+
+/* Tablet portrait */
+@media (min-width: 641px) and (max-width: 900px) {
+  .hero__title { font-size: 24vw; }
+  .hero__bottom { grid-template-columns: 1fr auto; align-items: end; }
+  .hero__cta { grid-column: 1 / -1; }
+  .hero__next { grid-column: 2; grid-row: 1; min-width: 260px; }
+  .hero__motto { grid-column: 1; grid-row: 1; }
+}
+
+/* Phone */
 @media (max-width: 640px) {
-  :root { --nav-h: 64px; }
+  :root { --nav-h: 64px; --gutter: 1.25rem; }
   body { font-size: 1rem; }
-  .hero__title { font-size: clamp(4.4rem, 27vw, 8rem); }
-  .hero__top { padding-top: 0.6rem; }
+  .mono { font-size: 0.66rem; }
+  .section { padding-block: clamp(4rem, 9vh, 6rem); }
+  .section__head { margin-bottom: 1.6rem; }
+  .section__title { font-size: clamp(3rem, 14.5vw, 5.2rem); margin-bottom: 1.8rem; }
+  .section__title--xl { font-size: clamp(3rem, 15vw, 5.6rem); }
+  .watermark { font-size: 56vw; opacity: 0.35; }
+
+  /* Hero: three-line lockup, stacked actions, compact next-match strip */
+  .hero__top { padding-top: 0.7rem; }
+  .hero__content { align-items: center; padding-block: 1.2rem 0.8rem; }
+  .hero__title { font-size: clamp(5rem, 28vw, 8.6rem); line-height: 0.78; }
+  .hero__outline { display: block; margin-right: 0; }
+  .hero__bottom { gap: 1.1rem; padding-bottom: 1.4rem; }
+  .hero__motto-text { font-size: 1.45rem; margin-bottom: 0.4rem; }
+  .hero__motto p { font-size: 0.9rem; max-width: 32ch; }
+  .hero__cta { display: grid; grid-template-columns: 1fr; gap: 0.55rem; }
+  .hero__cta .btn { justify-content: center; padding: 1.05rem 1.4rem; }
+  .hero__next { display: grid; grid-template-columns: 1fr auto; gap: 0.15rem 0.8rem; align-items: center; padding: 0.85rem 1rem; }
+  .hero__next strong { grid-column: 1 / -1; grid-row: 2; font-size: 1.05rem; }
+  .hero__next .hero__next-date { grid-column: 2; grid-row: 1; text-align: right; white-space: nowrap; }
+  .hero__next .hero__next-comp { display: none; }
+  .hero__next .mono { font-size: 0.6rem; letter-spacing: 0.08em; }
+
+  .marquee { padding-block: 0.8rem; }
+  .marquee__group { font-size: 1.7rem; gap: 1.6rem; padding-right: 1.6rem; }
+
+  .statement { font-size: clamp(1.6rem, 7vw, 2.2rem); margin-bottom: 2.6rem; }
+  .verein__grid { gap: 2.2rem; }
   .stats { grid-template-columns: 1fr 1fr; }
-  .stat__value { font-size: 3rem; }
-  .facts__row { grid-template-columns: 96px 1fr; }
-  .result { grid-template-columns: 1fr auto auto; }
+  .stat { padding: 1.2rem 1rem; gap: 0.5rem; }
+  .stat__value { font-size: 2.9rem; }
+  .facts__row { grid-template-columns: 92px 1fr; padding: 0.9rem 0; }
+  .facts dd { font-size: 1.02rem; }
+
+  .next-match { padding: 1.4rem 1.2rem; gap: 1.1rem; }
+  .next-match__teams { font-size: 2.1rem; }
+  .next-match .btn { align-self: stretch; justify-content: center; }
+  .countdown__unit { padding: 0.8rem 0.3rem; }
+  .countdown__value { font-size: 1.9rem; }
+  .countdown__unit .mono { font-size: 0.58rem; }
+  .results__head { padding-bottom: 0.8rem; }
+  .result { grid-template-columns: 1fr auto auto; gap: 0.35rem 0.9rem; padding: 0.95rem 0; }
   .result__date { grid-column: 1 / -1; }
-  .card { width: 76vw; max-width: 300px; }
-  .footer__grid { grid-template-columns: 1fr; }
-  .countdown__unit .mono { font-size: 0.6rem; }
-  .principle { grid-template-columns: 40px 1fr; }
+  .result__opp { font-size: 1.15rem; }
+  .result__score { font-size: 1.7rem; }
+  .result__badge { width: 28px; height: 28px; }
+
+  .pitch { max-width: none; }
+  .pitch__caption { margin-top: 0.9rem; flex-wrap: wrap; }
+  .principle { grid-template-columns: 1fr; gap: 0.5rem; padding: 1.5rem 0; }
+  .principle__index { grid-row: auto; padding-top: 0; }
+  .principle h3, .principle p { grid-column: 1; }
+  .principle h3 { font-size: 2rem; margin-bottom: 0.4rem; }
+  .principle p { font-size: 0.98rem; }
+
+  .bewerben__grid { gap: 2.2rem; margin-bottom: 2.4rem; }
+  .bewerben__label { margin-bottom: 0.9rem; }
+  .bewerben__cta .btn { width: 100%; justify-content: center; }
+  .steps { gap: 1rem; }
+
+  .cta { min-height: 88svh; }
+  .cta__inner { padding-block: 5rem 4rem; gap: 1.3rem; }
+  .cta__title { font-size: clamp(3rem, 15.5vw, 5.6rem); }
+  .cta__text { font-size: 1rem; }
+  .cta .btn--xl { width: 100%; justify-content: center; padding: 1.25rem 1.6rem; font-size: 0.8rem; }
+
+  .footer { padding-top: 2.6rem; }
+  .footer__grid { grid-template-columns: 1fr 1fr; gap: 1.8rem 1rem; padding-bottom: 2rem; }
+  .footer__brand { grid-column: 1 / -1; }
+  .footer__bottom { flex-direction: column; gap: 0.6rem; padding-block: 1.2rem; }
+  .footer__giant { font-size: 20vw; }
   .menu__footer .btn { width: 100%; justify-content: center; }
+  .card { width: min(72vw, 300px); min-height: 380px; padding: 1.1rem 1.1rem 1rem; }
+  .card__rating { font-size: 3.2rem; }
+  .card__name { font-size: 1.55rem; }
+}
+
+@media (max-width: 380px) {
+  .nav__wordmark { display: none; }
+  .hero__title { font-size: 27vw; }
+  .kader__tab { padding: 0.55rem 0.75rem; font-size: 0.58rem; }
 }
 
 /* ---------- Reduced motion ---------- */
