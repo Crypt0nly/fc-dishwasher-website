@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" width="200" height="240" role="img" aria-label="Wappen FC Dishwasher">
+  <defs>
+    <linearGradient id="fcd-chrome" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="0.38" stop-color="#cfd4db"/>
+      <stop offset="0.5" stop-color="#737a84"/><stop offset="0.6" stop-color="#eef1f4"/>
+      <stop offset="1" stop-color="#8b9199"/>
+    </linearGradient>
+    <linearGradient id="fcd-ice" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#bffbff"/><stop offset="1" stop-color="#3fd7ec"/>
+    </linearGradient>
+    <radialGradient id="fcd-inner" cx="0.5" cy="0.32" r="0.8">
+      <stop offset="0" stop-color="#1b2027"/><stop offset="1" stop-color="#07080a"/>
+    </radialGradient>
+    <clipPath id="fcd-clip"><path d="M100 20 L174 43 V124 C174 176 140 208 100 220 C60 208 26 176 26 124 V43 Z"/></clipPath>
+  </defs>
+  <path d="M100 8 L184 34 V124 C184 182 146 218 100 232 C54 218 16 182 16 124 V34 Z" fill="url(#fcd-inner)" stroke="url(#fcd-chrome)" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M100 20 L174 43 V124 C174 176 140 208 100 220 C60 208 26 176 26 124 V43 Z" fill="none" stroke="url(#fcd-chrome)" stroke-width="1" opacity="0.55"/>
+  <text x="100" y="66" text-anchor="middle" fill="url(#fcd-chrome)" font-family="Archivo, 'Arial Narrow', Impact, sans-serif" font-weight="900" font-stretch="62%" font-size="18" letter-spacing="1.4" textLength="118" lengthAdjust="spacingAndGlyphs">FC DISHWASHER</text>
+  <path d="M40 80 H160" stroke="url(#fcd-chrome)" stroke-width="1.2" opacity="0.7"/>
+  <g clip-path="url(#fcd-clip)" fill="none" stroke="url(#fcd-ice)" stroke-width="2.4" stroke-linecap="round">
+    <path d="M22 180 q12 -9 24 0 t24 0 t24 0 t24 0 t24 0 t24 0 t24 0" opacity="1"/>
+    <path d="M22 193 q12 -9 24 0 t24 0 t24 0 t24 0 t24 0 t24 0 t24 0" opacity="0.6"/>
+    <path d="M22 206 q12 -9 24 0 t24 0 t24 0 t24 0 t24 0 t24 0 t24 0" opacity="0.3"/>
+  </g>
+  <g transform="translate(0 0.00)">
+    <circle cx="100.00" cy="131.00" r="36.00" fill="#0b0d10" stroke="url(#fcd-chrome)" stroke-width="3"/>
+    <path d="M100.00 117.50 L112.84 126.83 L107.94 141.92 L92.06 141.92 L87.16 126.83 Z" fill="url(#fcd-chrome)"/>
+    <path d="M100.00 117.50 L100.00 102.00 M100.00 102.00 L92.72 96.71 M100.00 102.00 L107.28 96.71 M112.84 126.83 L127.58 122.04 M127.58 122.04 L130.36 113.48 M127.58 122.04 L134.86 127.33 M107.94 141.92 L117.05 154.46 M117.05 154.46 L126.05 154.46 M117.05 154.46 L114.26 163.02 M92.06 141.92 L82.95 154.46 M82.95 154.46 L85.74 163.02 M82.95 154.46 L73.95 154.46 M87.16 126.83 L72.42 122.04 M72.42 122.04 L65.14 127.33 M72.42 122.04 L69.64 113.48" fill="none" stroke="url(#fcd-chrome)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
